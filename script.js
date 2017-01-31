@@ -48,13 +48,16 @@ $(document).ready(function() {
       },
       yAxis: {
           title: {
-              text: 'Temperature (°C)'
+              text: null
           },
           plotLines: [{
               value: 0,
               width: 1,
               color: '#808080'
-          }]
+          }],
+          labels: {
+            format: '{value} °C'
+          }
       },
       plotOptions: {
             series: {
