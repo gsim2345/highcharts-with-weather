@@ -1,16 +1,43 @@
 $(document).ready(function() {
   // Chart 1
+  var cityLoc = {
+    Tokyo: {
+      lat: 35.6894875,
+      lng: 139.6917064
+    },
+    'New York': {
+      lat: 40.7127837,
+      lng: -74.0059413
+    },
+    London: {
+      lat: 51.5073509,
+      lng: -0.1277583
+    }
+  }
+
+
+  function cityUrl(city) {
+    return 'https://api.darksky.net/forecast/51c52962b36fc78232c5d78a3ba8e5e8/' + city.lat + ',' + city.lng + '?callback=?';
+  }
+
+  $.when($.getJSON(cityUrl(cityLoc.Tokyo)),$.getJSON(cityUrl(cityLoc['New York'])),$.getJSON(cityUrl(cityLoc.London)) )
+          .then(function(data1, data2, data3) {
+            console.log(data1);
+            console.log(data2);
+            console.log(data3);
+          });
+
   Highcharts.chart('chart1', {
       chart: {
-        height: 300
+        height: 265
       },
       title: {
-          text: 'Monthly Average Temperature',
-          x: -20 //center
+          text: null
+          //x: -20 //center
       },
       subtitle: {
-          text: 'Source: WorldClimate.com',
-          x: -20
+          text: null
+
       },
       xAxis: {
           categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
@@ -30,9 +57,7 @@ $(document).ready(function() {
           valueSuffix: '°C'
       },
       legend: {
-          layout: 'vertical',
-          align: 'right',
-          verticalAlign: 'middle',
+          align: 'center',
           borderWidth: 0
       },
       series: [{
@@ -41,9 +66,6 @@ $(document).ready(function() {
       }, {
           name: 'New York',
           data: [-0.2, 0.8, 5.7, 11.3, 17.0, 22.0, 24.8, 24.1, 20.1, 14.1, 8.6, 2.5]
-      }, {
-          name: 'Berlin',
-          data: [-0.9, 0.6, 3.5, 8.4, 13.5, 17.0, 18.6, 17.9, 14.3, 9.0, 3.9, 1.0]
       }, {
           name: 'London',
           data: [3.9, 4.2, 5.7, 8.5, 11.9, 15.2, 17.0, 16.6, 14.2, 10.3, 6.6, 4.8]
