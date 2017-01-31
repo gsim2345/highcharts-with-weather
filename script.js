@@ -1,12 +1,5 @@
 $(document).ready(function() {
-  /*
-  $.when($.getJSON(cityUrl(cityLoc.Tokyo)),$.getJSON(cityUrl(cityLoc['New York'])),$.getJSON(cityUrl(cityLoc.London)) )
-          .then(function(data1, data2, data3) {
-            console.log(data1);
-            console.log(data2);
-            console.log(data3);
-          });
-*/
+
 
   var cityLoc = {
     Copenhagen: {
@@ -37,7 +30,7 @@ $(document).ready(function() {
   // Chart options
   var options = {
       chart: {
-        height: 265
+        height: 300
       },
       title: {
           text: null
@@ -91,94 +84,55 @@ $(document).ready(function() {
     return 'https://api.darksky.net/forecast/51c52962b36fc78232c5d78a3ba8e5e8/' + city.lat + ',' + city.lng + '?callback=?';
   }
 
-  $.getJSON(cityUrl(cityLoc.Copenhagen))
-      .done(function(json) {
-        console.log(json);
+  /*
+  $.when($.getJSON(cityUrl(cityLoc.Tokyo)),$.getJSON(cityUrl(cityLoc['New York'])),$.getJSON(cityUrl(cityLoc.London)) )
+          .then(function(data1, data2, data3) {
+            console.log(data1);
+            console.log(data2);
+            console.log(data3);
+          });
+*/
+  $.when($.getJSON(cityUrl(cityLoc.Copenhagen)),$.getJSON(cityUrl(cityLoc['New York'])) )
+      .then(function(json1,json2) {
+        console.log(json1);
+        console.log(json2);
         var maxTemperatures = [];
         var minTemperatures = [];
-        var length = json.daily.data.length;
+        var maxTemperatures2 = [];
+        var minTemperatures2 = [];
+
+        var length = json1[0].daily.data.length;
         for (var i = 0; i< length; i++) {
-          var maxTemp = json.daily.data[i].temperatureMax;
-          var minTemp = json.daily.data[i].temperatureMin;
+          var maxTemp = json1[0].daily.data[i].temperatureMax;
+          var minTemp = json1[0].daily.data[i].temperatureMin;
+          var maxTemp2 = json2[0].daily.data[i].temperatureMax;
+          var minTemp2 = json2[0].daily.data[i].temperatureMin;
           maxTemp = Math.round(( maxTemp - 32) / 1.8 * 100) / 100;
           minTemp = Math.round(( minTemp - 32) / 1.8 * 100) / 100;
+          maxTemp2 = Math.round(( maxTemp2 - 32) / 1.8 * 100) / 100;
+          minTemp2 = Math.round(( minTemp2 - 32) / 1.8 * 100) / 100;
           maxTemperatures.push(maxTemp);
           minTemperatures.push(minTemp);
+          maxTemperatures2.push(maxTemp2);
+          minTemperatures2.push(minTemp2);
         }
-        // Adding data from weather API to options object.
+        // Adding data from weather API to options object for first chart.
         options.series[0].data = minTemperatures;
         options.series[1].data = maxTemperatures;
-
-        // rendering chart
+        // rendering chart1
         Highcharts.chart('chart1', options);
+        // Adding data from weather API to options object for second chart.
+        options.series[0].data = minTemperatures2;
+        options.series[1].data = maxTemperatures2;
+        // rendering chart2
+        Highcharts.chart('chart2', options);
+
       });
 
 
 
-  //Chart 2
-  Highcharts.chart('chart2', {
-        chart: {
-            height: 300,
-            type: 'spline'
-        },
-        title: {
-            text: 'Monthly Average Temperature'
-        },
-        subtitle: {
-            text: 'Source: WorldClimate.com'
-        },
-        xAxis: {
-            categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-        },
-        yAxis: {
-            title: {
-                text: 'Temperature'
-            },
-            labels: {
-                formatter: function () {
-                    return this.value + '°';
-                }
-            }
-        },
-        tooltip: {
-            crosshairs: true,
-            shared: true
-        },
-        plotOptions: {
-            spline: {
-                marker: {
-                    radius: 4,
-                    lineColor: '#666666',
-                    lineWidth: 1
-                }
-            }
-        },
-        series: [{
-            name: 'Tokyo',
-            marker: {
-                symbol: 'square'
-            },
-            data: [7.0, 6.9, 9.5, 14.5, 18.2, 21.5, 25.2, {
-                y: 26.5,
-                marker: {
-                    symbol: 'url(https://www.highcharts.com/samples/graphics/sun.png)'
-                }
-            }, 23.3, 18.3, 13.9, 9.6]
 
-        }, {
-            name: 'London',
-            marker: {
-                symbol: 'diamond'
-            },
-            data: [{
-                y: 3.9,
-                marker: {
-                    symbol: 'url(https://www.highcharts.com/samples/graphics/snow.png)'
-                }
-            }, 4.2, 5.7, 8.5, 11.9, 15.2, 17.0, 16.6, 14.2, 10.3, 6.6, 4.8]
-        }]
-    });
+  //Chart 2
 
     //Chart3
     Highcharts.chart('chart3', {
