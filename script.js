@@ -1,6 +1,18 @@
 $(document).ready(function() {
-  // Chart 1
+  /*
+  $.when($.getJSON(cityUrl(cityLoc.Tokyo)),$.getJSON(cityUrl(cityLoc['New York'])),$.getJSON(cityUrl(cityLoc.London)) )
+          .then(function(data1, data2, data3) {
+            console.log(data1);
+            console.log(data2);
+            console.log(data3);
+          });
+*/
+
   var cityLoc = {
+    Copenhagen: {
+      lat: 55.6760968,
+      lng: 12.5683371
+    },
     Tokyo: {
       lat: 35.6894875,
       lng: 139.6917064
@@ -16,22 +28,14 @@ $(document).ready(function() {
   }
 
 
-  function cityUrl(city) {
-    return 'https://api.darksky.net/forecast/51c52962b36fc78232c5d78a3ba8e5e8/' + city.lat + ',' + city.lng + '?callback=?';
-  }
+  // setting the current date as required in plotOptions.series.pointStart
+    var d = new Date();
+    var year = d.getFullYear();
+    var month = d.getMonth();
+    var day = d.getDate();
 
-  $.when($.getJSON(cityUrl(cityLoc.Tokyo)),$.getJSON(cityUrl(cityLoc['New York'])),$.getJSON(cityUrl(cityLoc.London)) )
-          .then(function(data1, data2, data3) {
-            console.log(data1);
-            console.log(data2);
-            console.log(data3);
-          });
-
-  var d = new Date();
-  var year = d.getFullYear();
-  var month = d.getMonth();
-  var day = d.getDate();
-  Highcharts.chart('chart1', {
+  // Chart options
+  var options = {
       chart: {
         height: 265
       },
@@ -63,7 +67,7 @@ $(document).ready(function() {
             series: {
                 pointStart: Date.UTC(year, month, day),
                 pointInterval: 24 * 3600 * 1000 // one day
-            }
+              }
         },
       tooltip: {
           valueSuffix: '°C'
@@ -73,16 +77,43 @@ $(document).ready(function() {
           borderWidth: 0
       },
       series: [{
-          name: 'Tokyo',
-          data: [7.0, 6.9, 9.5, 14.5, 18.2, 21.5, 25.2, 26.5, 23.3, 18.3, 13.9, 9.6]
-      }, {
-          name: 'New York',
-          data: [-0.2, 0.8, 5.7, 11.3, 17.0, 22.0, 24.8, 24.1, 20.1, 14.1, 8.6, 2.5]
-      }, {
-          name: 'London',
-          data: [3.9, 4.2, 5.7, 8.5, 11.9, 15.2, 17.0, 16.6, 14.2, 10.3, 6.6, 4.8]
-      }]
-  });
+          name: 'Min temperature',
+          data: []
+      },
+      {
+        name: 'Max temperature',
+        data: [],
+        color: '#FF0000'
+        }]
+  }
+
+  function cityUrl(city) {
+    return 'https://api.darksky.net/forecast/51c52962b36fc78232c5d78a3ba8e5e8/' + city.lat + ',' + city.lng + '?callback=?';
+  }
+
+  $.getJSON(cityUrl(cityLoc.Copenhagen))
+      .done(function(json) {
+        console.log(json);
+        var maxTemperatures = [];
+        var minTemperatures = [];
+        var length = json.daily.data.length;
+        for (var i = 0; i< length; i++) {
+          var maxTemp = json.daily.data[i].temperatureMax;
+          var minTemp = json.daily.data[i].temperatureMin;
+          maxTemp = Math.round(( maxTemp - 32) / 1.8 * 100) / 100;
+          minTemp = Math.round(( minTemp - 32) / 1.8 * 100) / 100;
+          maxTemperatures.push(maxTemp);
+          minTemperatures.push(minTemp);
+        }
+        // Adding data from weather API to options object.
+        options.series[0].data = minTemperatures;
+        options.series[1].data = maxTemperatures;
+
+        // rendering chart
+        Highcharts.chart('chart1', options);
+      });
+
+
 
   //Chart 2
   Highcharts.chart('chart2', {
@@ -276,134 +307,5 @@ $(document).ready(function() {
           }]
       });
 
-      //Chart 5
-      Highcharts.chart('chart5', {
-            chart: {
-                height: 300,
-                type: 'spline'
-            },
-            title: {
-                text: 'Monthly Average Temperature'
-            },
-            subtitle: {
-                text: 'Source: WorldClimate.com'
-            },
-            xAxis: {
-                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-            },
-            yAxis: {
-                title: {
-                    text: 'Temperature'
-                },
-                labels: {
-                    formatter: function () {
-                        return this.value + '°';
-                    }
-                }
-            },
-            tooltip: {
-                crosshairs: true,
-                shared: true
-            },
-            plotOptions: {
-                spline: {
-                    marker: {
-                        radius: 4,
-                        lineColor: '#666666',
-                        lineWidth: 1
-                    }
-                }
-            },
-            series: [{
-                name: 'Tokyo',
-                marker: {
-                    symbol: 'square'
-                },
-                data: [7.0, 6.9, 9.5, 14.5, 18.2, 21.5, 25.2, {
-                    y: 26.5,
-                    marker: {
-                        symbol: 'url(https://www.highcharts.com/samples/graphics/sun.png)'
-                    }
-                }, 23.3, 18.3, 13.9, 9.6]
-
-            }, {
-                name: 'London',
-                marker: {
-                    symbol: 'diamond'
-                },
-                data: [{
-                    y: 3.9,
-                    marker: {
-                        symbol: 'url(https://www.highcharts.com/samples/graphics/snow.png)'
-                    }
-                }, 4.2, 5.7, 8.5, 11.9, 15.2, 17.0, 16.6, 14.2, 10.3, 6.6, 4.8]
-            }]
-        });
-
-        //Chart 6
-        Highcharts.chart('chart6', {
-              chart: {
-                  height: 300,
-                  type: 'spline'
-              },
-              title: {
-                  text: 'Monthly Average Temperature'
-              },
-              subtitle: {
-                  text: 'Source: WorldClimate.com'
-              },
-              xAxis: {
-                  categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-              },
-              yAxis: {
-                  title: {
-                      text: 'Temperature'
-                  },
-                  labels: {
-                      formatter: function () {
-                          return this.value + '°';
-                      }
-                  }
-              },
-              tooltip: {
-                  crosshairs: true,
-                  shared: true
-              },
-              plotOptions: {
-                  spline: {
-                      marker: {
-                          radius: 4,
-                          lineColor: '#666666',
-                          lineWidth: 1
-                      }
-                  }
-              },
-              series: [{
-                  name: 'Tokyo',
-                  marker: {
-                      symbol: 'square'
-                  },
-                  data: [7.0, 6.9, 9.5, 14.5, 18.2, 21.5, 25.2, {
-                      y: 26.5,
-                      marker: {
-                          symbol: 'url(https://www.highcharts.com/samples/graphics/sun.png)'
-                      }
-                  }, 23.3, 18.3, 13.9, 9.6]
-
-              }, {
-                  name: 'London',
-                  marker: {
-                      symbol: 'diamond'
-                  },
-                  data: [{
-                      y: 3.9,
-                      marker: {
-                          symbol: 'url(https://www.highcharts.com/samples/graphics/snow.png)'
-                      }
-                  }, 4.2, 5.7, 8.5, 11.9, 15.2, 17.0, 16.6, 14.2, 10.3, 6.6, 4.8]
-              }]
-          });
 
 });     //document.ready
