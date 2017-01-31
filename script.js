@@ -27,6 +27,10 @@ $(document).ready(function() {
             console.log(data3);
           });
 
+  var d = new Date();
+  var year = d.getFullYear();
+  var month = d.getMonth();
+  var day = d.getDate();
   Highcharts.chart('chart1', {
       chart: {
         height: 265
@@ -40,8 +44,7 @@ $(document).ready(function() {
 
       },
       xAxis: {
-          categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-              'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+          type: 'datetime'
       },
       yAxis: {
           title: {
@@ -53,6 +56,12 @@ $(document).ready(function() {
               color: '#808080'
           }]
       },
+      plotOptions: {
+            series: {
+                pointStart: Date.UTC(year, month, day),
+                pointInterval: 24 * 3600 * 1000 // one day
+            }
+        },
       tooltip: {
           valueSuffix: '°C'
       },
